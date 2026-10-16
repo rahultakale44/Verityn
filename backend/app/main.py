@@ -4,9 +4,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.mongodb import mongodb
-from app.api.routes import health, companies, research
+from app.api.routes import health, companies, research, icps, qualifications
 from app.db.companies import ensure_indexes
 from app.db.research import ensure_research_indexes
+from app.db.icps import ensure_icp_indexes
+from app.db.qualifications import ensure_qualification_indexes
 
 
 @asynccontextmanager
@@ -18,6 +20,8 @@ async def lifespan(app: FastAPI):
     try:
         ensure_indexes()
         ensure_research_indexes()
+        ensure_icp_indexes()
+        ensure_qualification_indexes()
     except Exception:
         # If index creation fails, log but continue
         # This allows the app to start even if MongoDB is unavailable
@@ -59,6 +63,16 @@ app.include_router(
     research.router,
     prefix=f"/api/{settings.api_version}/companies",
     tags=["research"]
+)
+app.include_router(
+    icps.router,
+    prefix=f"/api/{settings.api_version}/icps",
+    tags=["icps"]
+)
+app.include_router(
+    qualifications.router,
+    prefix=f"/api/{settings.api_version}/companies",
+    tags=["qualifications"]
 )
 
 
