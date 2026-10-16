@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.mongodb import mongodb
-from app.api.routes import health
+from app.api.routes import health, companies
+from app.db.companies import ensure_indexes
 
 
 @asynccontextmanager
@@ -12,6 +13,13 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup: Initialize MongoDB connection
     mongodb.connect()
+    # Create database indexes
+    try:
+        ensure_indexes()
+    except Exception:
+        # If index creation fails, log but continue
+        # This allows the app to start even if MongoDB is unavailable
+        pass
     yield
     # Shutdown: Close MongoDB connection
     mongodb.close()
@@ -39,6 +47,11 @@ app.include_router(
     health.router,
     prefix=f"/api/{settings.api_version}",
     tags=["health"]
+)
+app.include_router(
+    companies.router,
+    prefix=f"/api/{settings.api_version}/companies",
+    tags=["companies"]
 )
 
 
