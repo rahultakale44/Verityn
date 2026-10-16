@@ -48,6 +48,46 @@ export interface ApiError {
   detail: string | { message: string; field?: string };
 }
 
+export interface ResearchRun {
+  id: string;
+  company_id: string;
+  status: 'pending' | 'running' | 'completed' | 'partial' | 'failed';
+  started_at: string;
+  completed_at?: string;
+  queries_executed: number;
+  sources_found: number;
+  sources_saved: number;
+  error_summary?: string;
+}
+
+export interface ResearchRunListResponse {
+  items: ResearchRun[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface SourceEvidence {
+  id: string;
+  research_run_id: string;
+  company_id: string;
+  source_url: string;
+  source_domain: string;
+  title: string;
+  snippet: string;
+  published_at?: string;
+  retrieved_at: string;
+  provider: string;
+  content_type?: string;
+}
+
+export interface SourceEvidenceListResponse {
+  items: SourceEvidence[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -120,6 +160,32 @@ class ApiClient {
     return this.request(`/api/v1/companies/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // Research endpoints
+  async startResearch(companyId: string): Promise<ResearchRun> {
+    return this.request(`/api/v1/companies/${companyId}/research`, {
+      method: 'POST',
+    });
+  }
+
+  async listResearch(companyId: string, limit: number = 50, offset: number = 0): Promise<ResearchRunListResponse> {
+    return this.request(`/api/v1/companies/${companyId}/research?limit=${limit}&offset=${offset}`);
+  }
+
+  async getResearchRun(companyId: string, researchRunId: string): Promise<ResearchRun> {
+    return this.request(`/api/v1/companies/${companyId}/research/${researchRunId}`);
+  }
+
+  async listResearchSources(
+    companyId: string,
+    researchRunId: string,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<SourceEvidenceListResponse> {
+    return this.request(
+      `/api/v1/companies/${companyId}/research/${researchRunId}/sources?limit=${limit}&offset=${offset}`
+    );
   }
 }
 

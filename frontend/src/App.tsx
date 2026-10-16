@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { apiClient, type Company, type CompanyCreate, type CompanyUpdate } from './api/client';
+import { apiClient, type Company, type CompanyCreate, type CompanyUpdate, type ResearchRun, type SourceEvidence } from './api/client';
 import { CompanyList } from './components/CompanyList';
 import { CompanyForm } from './components/CompanyForm';
 import { CompanyDetail } from './components/CompanyDetail';
+import { ResearchPanel, ResearchHistory, ResearchSources } from './components/ResearchPanel';
 
-type View = 'list' | 'create' | 'edit' | 'detail';
+type View = 'list' | 'create' | 'edit' | 'detail' | 'research';
 
 function App() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
@@ -15,6 +16,14 @@ function App() {
   const [success, setSuccess] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<View>('list');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  
+  // Research state
+  const [isResearching, setIsResearching] = useState(false);
+  const [showResearchHistory, setShowResearchHistory] = useState(false);
+  const [showResearchSources, setShowResearchSources] = useState(false);
+  const [researchRuns, setResearchRuns] = useState<ResearchRun[]>([]);
+  const [selectedResearchRun, setSelectedResearchRun] = useState<ResearchRun | null>(null);
+  const [researchSources, setResearchSources] = useState<SourceEvidence[]>([]);
 
   useEffect(() => {
     checkBackendHealth();
@@ -93,6 +102,62 @@ function App() {
 
   const handleEditFromDetail = () => {
     setCurrentView('edit');
+  };
+
+  const handleStartResearch = async (company: Company) => {
+    setIsResearching(true);
+    setError(null);
+    try {
+      const run = await apiClient.startResearch(company.id);
+      
+      if (run.status === 'completed') {
+        setSuccess(`Research completed! Found ${run.sources_saved} sources.`);
+      } else if (run.status === 'partial') {
+        setSuccess(`Research partially completed. Found ${run.sources_saved} sources with some errors.`);
+      } else if (run.status === 'failed') {
+        setError(run.error_summary || 'Research failed to collect sources');
+      }
+      
+      // Refresh selected company if viewing detail
+      if (currentView === 'research' && selectedCompany?.id === company.id) {
+        // Could reload research history here
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to start research');
+    } finally {
+      setIsResearching(false);
+    }
+  };
+
+  const handleViewResearchHistory = async (company: Company) => {
+    setSelectedCompany(company);
+    setError(null);
+    try {
+      const response = await apiClient.listResearch(company.id);
+      setResearchRuns(response.items);
+      setShowResearchHistory(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load research history');
+    }
+  };
+
+  const handleViewResearchSources = async (run: ResearchRun) => {
+    if (!selectedCompany) return;
+    setError(null);
+    try {
+      const response = await apiClient.listResearchSources(selectedCompany.id, run.id);
+      setResearchSources(response.items);
+      setSelectedResearchRun(run);
+      setShowResearchHistory(false);
+      setShowResearchSources(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load sources');
+    }
+  };
+
+  const handleResearchCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setCurrentView('research');
   };
 
   return (
@@ -247,6 +312,7 @@ function App() {
                   }}
                   onDelete={handleDeleteCompany}
                   onView={handleViewCompany}
+                  onResearch={handleResearchCompany}
                 />
               )}
             </>
@@ -279,6 +345,42 @@ function App() {
               />
             </div>
           )}
+
+          {/* View: Research Company */}
+          {currentView === 'research' && selectedCompany && (
+            <div>
+              <button
+                onClick={() => setCurrentView('list')}
+                className="mb-4 text-primary-600 hover:text-primary-800 flex items-center"
+              >
+                <svg
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                Back to Companies
+              </button>
+              
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Research: {selectedCompany.company_name}
+              </h3>
+              
+              <ResearchPanel
+                company={selectedCompany}
+                onStartResearch={handleStartResearch}
+                onViewHistory={handleViewResearchHistory}
+                isResearching={isResearching}
+              />
+            </div>
+          )}
         </div>
 
         {/* Phase Info */}
@@ -300,8 +402,8 @@ function App() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
-                <strong>Phase 2</strong> - Company data management is now available.
-                AI-powered research and qualification features will be added in future phases.
+                <strong>Phase 3</strong> - Public company research and evidence collection is now available.
+                AI-powered qualification features will be added in future phases.
               </p>
             </div>
           </div>
@@ -320,13 +422,36 @@ function App() {
         />
       )}
 
+      {/* Research History Modal */}
+      {showResearchHistory && selectedCompany && (
+        <ResearchHistory
+          company={selectedCompany}
+          researchRuns={researchRuns}
+          onViewSources={handleViewResearchSources}
+          onClose={() => setShowResearchHistory(false)}
+        />
+      )}
+
+      {/* Research Sources Modal */}
+      {showResearchSources && selectedCompany && selectedResearchRun && (
+        <ResearchSources
+          company={selectedCompany}
+          run={selectedResearchRun}
+          sources={researchSources}
+          onClose={() => {
+            setShowResearchSources(false);
+            setShowResearchHistory(true);
+          }}
+        />
+      )}
+
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-gray-600">
-            <p className="text-sm">Verityn v0.2.0 - Phase 2 Development Version</p>
+            <p className="text-sm">Verityn v0.3.0 - Phase 3 Development Version</p>
             <p className="text-xs mt-1 text-gray-500">
-              Company management active. AI research and qualification features in development.
+              Company management and public research active. AI qualification features in development.
             </p>
           </div>
         </div>

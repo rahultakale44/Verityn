@@ -7,12 +7,17 @@ class Settings(BaseSettings):
     
     # Application metadata
     app_name: str = "Verityn"
-    app_version: str = "0.2.0"
+    app_version: str = "0.3.0"
     api_version: str = "v1"
     
     # MongoDB configuration
     mongodb_uri: str = "mongodb://localhost:27017"
     mongodb_database: str = "verityn"
+    
+    # Tavily API configuration
+    tavily_api_key: str = ""
+    tavily_max_results: int = 5
+    tavily_search_timeout: int = 10
     
     # Server configuration
     debug: bool = False

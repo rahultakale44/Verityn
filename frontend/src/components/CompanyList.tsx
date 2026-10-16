@@ -6,9 +6,10 @@ interface CompanyListProps {
   onEdit: (company: Company) => void;
   onDelete: (company: Company) => void;
   onView: (company: Company) => void;
+  onResearch: (company: Company) => void;
 }
 
-export function CompanyList({ companies, onEdit, onDelete, onView }: CompanyListProps) {
+export function CompanyList({ companies, onEdit, onDelete, onView, onResearch }: CompanyListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = (company: Company) => {
@@ -108,8 +109,14 @@ export function CompanyList({ companies, onEdit, onDelete, onView }: CompanyList
                     View
                   </button>
                   <button
-                    onClick={() => onEdit(company)}
+                    onClick={() => onResearch(company)}
                     className="text-blue-600 hover:text-blue-900 mr-4"
+                  >
+                    Research
+                  </button>
+                  <button
+                    onClick={() => onEdit(company)}
+                    className="text-green-600 hover:text-green-900 mr-4"
                   >
                     Edit
                   </button>
