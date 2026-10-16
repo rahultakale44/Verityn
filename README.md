@@ -6,9 +6,9 @@
 
 Verityn helps B2B technology consulting companies research potential customer companies, evaluate them against configurable Ideal Customer Profiles (ICP), explain qualification scores using supporting evidence, and produce a prioritized shortlist for human review.
 
-### Current Status: Phase 5 - End-to-End Lead Intelligence Dashboard ✅
+### Current Status: Phase 6 - Lead Intelligence & Ranking ✅
 
-This is the Phase 5 implementation, which includes a complete, production-ready dashboard with:
+This is the Phase 6 implementation, which includes a complete, production-ready lead intelligence platform with:
 
 **Phase 1-2 Features:**
 - ✅ FastAPI backend with comprehensive API
@@ -29,7 +29,7 @@ This is the Phase 5 implementation, which includes a complete, production-ready 
 - ✅ ICP snapshots for historical reproducibility
 - ✅ Qualification outcomes: qualified, partially_qualified, not_qualified, insufficient_data
 
-**Phase 5 Features (NEW):**
+**Phase 5 Features:**
 - ✅ **Dashboard View:** Real-time metrics from API, quick actions, welcome section
 - ✅ **Company Workspace:** Unified interface for all company operations and research
 - ✅ **ICP Management UI:** Full CRUD interface for ICP configuration
@@ -39,17 +39,29 @@ This is the Phase 5 implementation, which includes a complete, production-ready 
 - ✅ **Tab Navigation:** Intuitive flow between Dashboard, Companies, ICPs, and Qualifications
 - ✅ **Responsive Design:** Professional UI using Tailwind CSS conventions
 
+**Phase 6 Features (NEW):**
+- ✅ **Lead Intelligence UI:** Complete 733-line component for lead viewing and management
+- ✅ **Deterministic Ranking:** Rank leads by score, coverage, timestamp, or outcome
+- ✅ **Advanced Filtering:** Filter by outcome, score range, coverage, employees, name, research status
+- ✅ **Saved Views:** Create, load, and manage custom filter configurations
+- ✅ **Smart Sorting:** Click column headers to sort with visual indicators
+- ✅ **Pagination:** Browse large result sets with smart page numbering
+- ✅ **Aggregation Pipeline:** Efficient MongoDB queries with indexes
+- ✅ **Real-Time Data:** Saved views reapply to current data (no stale results)
+
 **Test Coverage:**
-- ✅ 105 backend tests (all passing in 1.29s)
-- ✅ Frontend production build successful (629ms)
+- ✅ 118 backend tests (all passing in 1.83s)
+- ✅ Frontend production build successful (961ms, 321 KB bundle)
 - ✅ Full API coverage across all endpoints
+- ✅ 13 new ranking engine tests
 
 **Not yet implemented:**
-- ❌ URL routing / deep linking (state-based navigation only)
-- ❌ Search and filtering in lists
-- ❌ Batch qualification operations
+- ❌ Industry/country filter dropdowns in UI (backend supports)
+- ❌ Lead detail modal (full qualification view)
+- ❌ Dashboard lead metrics (global counts)
 - ❌ Export functionality (CSV/PDF)
-- ❌ Comparison tools for qualifications
+- ❌ Batch qualification operations
+- ❌ Multi-user authentication and permissions
 
 ## Technology Stack
 
@@ -237,7 +249,7 @@ Run specific test file:
 pytest tests/test_companies.py -v
 ```
 
-Expected result: **105 tests passing** (Company: 27, Health: 3, ICP: 14, MongoDB: 1, Qualification Engine: 27, Qualifications: 10, Research: 23)
+Expected result: **118 tests passing** (Company: 27, Health: 3, ICP: 14, MongoDB: 1, Qualification Engine: 27, Qualifications: 10, Ranking Engine: 13, Research: 23)
 
 ### Frontend Build Verification
 
@@ -259,7 +271,7 @@ npm run build
 {
   "app_name": "Verityn",
   "status": "healthy",
-  "version": "0.2.0"
+  "version": "0.6.0"
 }
 ```
 
@@ -401,7 +413,7 @@ Companies are sorted by creation date, newest first.
 
 ```env
 APP_NAME=Verityn
-APP_VERSION=0.5.0
+APP_VERSION=0.6.0
 DEBUG=false
 
 # MongoDB Configuration - REQUIRED
@@ -465,13 +477,28 @@ The application automatically creates the following indexes on startup:
 - **Input Validation:** Strict validation and security
 - **Maintainable Code:** Clean, typed, well-documented code
 
-## Future Phases
+## Future Enhancements
 
-- **Phase 3:** LangGraph agent framework and Gemini API integration
-- **Phase 4:** Web research and data collection pipeline
-- **Phase 5:** ICP configuration and qualification scoring
-- **Phase 6:** Evidence tracking and review interface
-- **Phase 7:** Production deployment and monitoring
+### Short Term
+- Industry/country filter dropdowns in UI
+- Lead detail modal (full qualification view)
+- Dashboard lead metrics (global counts)
+- Page size selector (25, 50, 100)
+- CSV export functionality
+
+### Medium Term
+- Batch qualification operations
+- Multi-user authentication
+- Saved view sharing
+- Advanced filter logic (OR, NOT operators)
+- Lead activity timeline
+
+### Long Term
+- Real-time updates (WebSocket)
+- CRM integration (Salesforce, HubSpot)
+- Lead scoring trends over time
+- ICP performance comparison
+- Automated lead nurturing workflows
 
 ## License
 

@@ -4,7 +4,7 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-export type MainView = 'dashboard' | 'companies' | 'icps' | 'qualifications';
+export type MainView = 'dashboard' | 'companies' | 'icps' | 'qualifications' | 'leads';
 
 export interface Company {
   id: string;
@@ -185,6 +185,87 @@ export interface QualificationListResponse {
   offset: number;
 }
 
+// Lead Intelligence types
+export type SortField = 'score' | 'evidence_coverage' | 'qualified_at' | 'outcome';
+export type SortDirection = 'asc' | 'desc';
+
+export interface LeadFilters {
+  icp_id: string;
+  outcomes?: string[];
+  min_score?: number;
+  max_score?: number;
+  min_evidence_coverage?: number;
+  industries?: string[];
+  countries?: string[];
+  min_employees?: number;
+  max_employees?: number;
+  company_name_search?: string;
+  has_research?: boolean;
+  sort_by?: SortField;
+  sort_direction?: SortDirection;
+}
+
+export interface LeadResponse {
+  company_id: string;
+  company_name: string;
+  website?: string;
+  industry?: string;
+  headquarters_country?: string;
+  headquarters_region?: string;
+  employee_count?: number;
+  qualification_id: string;
+  icp_id: string;
+  icp_name: string;
+  qualified_at: string;
+  score?: number;
+  evidence_coverage?: number;
+  outcome: 'qualified' | 'partially_qualified' | 'not_qualified' | 'insufficient_data';
+  outcome_explanation: string;
+  has_research: boolean;
+}
+
+export interface LeadListResponse {
+  items: LeadResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+  sort_by: string;
+  sort_direction: string;
+}
+
+// Saved View types
+export interface SavedViewFilters extends LeadFilters {
+  // All LeadFilters fields plus confirmation that icp_id is required
+}
+
+export interface SavedView {
+  id: string;
+  name: string;
+  description?: string;
+  filters: SavedViewFilters;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavedViewCreate {
+  name: string;
+  description?: string;
+  filters: SavedViewFilters;
+}
+
+export interface SavedViewUpdate {
+  name?: string;
+  description?: string;
+  filters?: SavedViewFilters;
+}
+
+export interface SavedViewListResponse {
+  items: SavedView[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -328,6 +409,85 @@ class ApiClient {
 
   async getQualification(companyId: string, qualificationId: string): Promise<Qualification> {
     return this.request(`/api/v1/companies/${companyId}/qualifications/${qualificationId}`);
+  }
+
+  // Lead endpoints
+  async searchLeads(
+    filters: LeadFilters,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<LeadListResponse> {
+    const params = new URLSearchParams();
+    
+    // Required parameter
+    params.append('icp_id', filters.icp_id);
+    
+    // Optional filters
+    if (filters.outcomes && filters.outcomes.length > 0) {
+      filters.outcomes.forEach(outcome => params.append('outcomes', outcome));
+    }
+    if (filters.min_score !== undefined) params.append('min_score', filters.min_score.toString());
+    if (filters.max_score !== undefined) params.append('max_score', filters.max_score.toString());
+    if (filters.min_evidence_coverage !== undefined) {
+      params.append('min_evidence_coverage', filters.min_evidence_coverage.toString());
+    }
+    if (filters.industries && filters.industries.length > 0) {
+      filters.industries.forEach(industry => params.append('industries', industry));
+    }
+    if (filters.countries && filters.countries.length > 0) {
+      filters.countries.forEach(country => params.append('countries', country));
+    }
+    if (filters.min_employees !== undefined) {
+      params.append('min_employees', filters.min_employees.toString());
+    }
+    if (filters.max_employees !== undefined) {
+      params.append('max_employees', filters.max_employees.toString());
+    }
+    if (filters.company_name_search) {
+      params.append('company_name_search', filters.company_name_search);
+    }
+    if (filters.has_research !== undefined) {
+      params.append('has_research', filters.has_research.toString());
+    }
+    
+    // Sorting
+    params.append('sort_by', filters.sort_by || 'score');
+    params.append('sort_direction', filters.sort_direction || 'desc');
+    
+    // Pagination
+    params.append('limit', limit.toString());
+    params.append('offset', offset.toString());
+    
+    return this.request(`/api/v1/leads?${params.toString()}`);
+  }
+
+  // Saved View endpoints
+  async createSavedView(data: SavedViewCreate): Promise<SavedView> {
+    return this.request('/api/v1/saved-views', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async listSavedViews(limit: number = 50, offset: number = 0): Promise<SavedViewListResponse> {
+    return this.request(`/api/v1/saved-views?limit=${limit}&offset=${offset}`);
+  }
+
+  async getSavedView(id: string): Promise<SavedView> {
+    return this.request(`/api/v1/saved-views/${id}`);
+  }
+
+  async updateSavedView(id: string, data: SavedViewUpdate): Promise<SavedView> {
+    return this.request(`/api/v1/saved-views/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSavedView(id: string): Promise<void> {
+    return this.request(`/api/v1/saved-views/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 

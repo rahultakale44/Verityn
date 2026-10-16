@@ -5,6 +5,7 @@ import { Dashboard } from './components/Dashboard';
 import { CompanyWorkspace } from './components/CompanyWorkspace';
 import { ICPManagement } from './components/ICPManagement';
 import { QualificationWorkflow } from './components/QualificationWorkflow';
+import { LeadIntelligence } from './components/LeadIntelligence';
 
 function App() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
@@ -122,15 +123,19 @@ function App() {
         {mainView === 'qualifications' && (
           <QualificationWorkflow onError={setError} onSuccess={setSuccess} />
         )}
+        
+        {mainView === 'leads' && (
+          <LeadIntelligence onError={setError} onSuccess={setSuccess} />
+        )}
       </main>
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-gray-600">
-            <p className="text-sm">Verityn v0.5.0 - Phase 5 Development Version</p>
+            <p className="text-sm">Verityn v0.6.0 - Phase 6 Development Version</p>
             <p className="text-xs mt-1 text-gray-500">
-              End-to-end lead intelligence dashboard active. Company management, research, ICP configuration, and evidence-based qualification fully operational.
+              Lead intelligence, ranking, and saved views active. Full end-to-end B2B lead intelligence platform.
             </p>
           </div>
         </div>
