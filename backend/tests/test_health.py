@@ -34,7 +34,7 @@ def test_health_response_schema(client):
     # Check expected values
     assert data["app_name"] == "Verityn"
     assert data["status"] == "healthy"
-    assert data["version"] == "0.4.0"
+    assert data["version"] == "0.5.0"
 
 
 def test_health_endpoint_works_without_mongodb(client):

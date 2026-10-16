@@ -4,6 +4,8 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+export type MainView = 'dashboard' | 'companies' | 'icps' | 'qualifications';
+
 export interface Company {
   id: string;
   company_name: string;

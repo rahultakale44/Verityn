@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     
     # Application metadata
     app_name: str = "Verityn"
-    app_version: str = "0.4.0"
+    app_version: str = "0.5.0"
     api_version: str = "v1"
     
     # MongoDB configuration

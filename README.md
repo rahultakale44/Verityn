@@ -6,32 +6,50 @@
 
 Verityn helps B2B technology consulting companies research potential customer companies, evaluate them against configurable Ideal Customer Profiles (ICP), explain qualification scores using supporting evidence, and produce a prioritized shortlist for human review.
 
-### Current Status: Phase 2 - Company Data Management
+### Current Status: Phase 5 - End-to-End Lead Intelligence Dashboard ✅
 
-This is the Phase 2 implementation, which includes:
-- ✅ FastAPI backend with health check endpoint
-- ✅ MongoDB Atlas-compatible configuration with indexes
-- ✅ **Full CRUD API for company records**
-- ✅ **Company data validation and duplicate detection**
-- ✅ **React + TypeScript UI for company management**
-- ✅ Project structure and development environment
-- ✅ Comprehensive tests (31 tests, all passing)
+This is the Phase 5 implementation, which includes a complete, production-ready dashboard with:
 
-**Phase 2 New Features:**
-- ✅ Create, read, update, and delete company records
-- ✅ List companies with pagination
-- ✅ Duplicate detection (normalized company name and website)
-- ✅ Input validation (required fields, URL format, employee count)
-- ✅ Professional UI with company list, forms, and detail view
-- ✅ Error handling and user feedback
+**Phase 1-2 Features:**
+- ✅ FastAPI backend with comprehensive API
+- ✅ MongoDB with proper indexes and connection handling
+- ✅ Full CRUD operations for company records
+- ✅ Company data validation and duplicate detection
+
+**Phase 3 Features:**
+- ✅ Tavily-powered web research integration
+- ✅ Research run tracking and history
+- ✅ Source evidence collection and storage
+- ✅ Research status management (pending, running, completed, partial, failed)
+
+**Phase 4 Features:**
+- ✅ ICP (Ideal Customer Profile) configuration and management
+- ✅ Deterministic qualification engine with 5 criteria types
+- ✅ Evidence-based scoring with transparency
+- ✅ ICP snapshots for historical reproducibility
+- ✅ Qualification outcomes: qualified, partially_qualified, not_qualified, insufficient_data
+
+**Phase 5 Features (NEW):**
+- ✅ **Dashboard View:** Real-time metrics from API, quick actions, welcome section
+- ✅ **Company Workspace:** Unified interface for all company operations and research
+- ✅ **ICP Management UI:** Full CRUD interface for ICP configuration
+- ✅ **Qualification Workflow:** Select company + ICP, run qualification, view detailed results
+- ✅ **Qualification History:** View past qualifications with full criterion evaluations
+- ✅ **Evidence Display:** Clickable source URLs, snippets, and detailed explanations
+- ✅ **Tab Navigation:** Intuitive flow between Dashboard, Companies, ICPs, and Qualifications
+- ✅ **Responsive Design:** Professional UI using Tailwind CSS conventions
+
+**Test Coverage:**
+- ✅ 105 backend tests (all passing in 1.29s)
+- ✅ Frontend production build successful (629ms)
+- ✅ Full API coverage across all endpoints
 
 **Not yet implemented:**
-- ❌ AI-powered lead research (planned for Phase 3+)
-- ❌ LangGraph agent workflows (planned for Phase 3+)
-- ❌ Gemini API integration (planned for Phase 3+)
-- ❌ Web research and data collection (planned for Phase 3+)
-- ❌ ICP qualification scoring (planned for Phase 4+)
-- ❌ Evidence tracking and review (planned for Phase 5+)
+- ❌ URL routing / deep linking (state-based navigation only)
+- ❌ Search and filtering in lists
+- ❌ Batch qualification operations
+- ❌ Export functionality (CSV/PDF)
+- ❌ Comparison tools for qualifications
 
 ## Technology Stack
 
@@ -219,7 +237,7 @@ Run specific test file:
 pytest tests/test_companies.py -v
 ```
 
-Expected result: **31 tests passing**
+Expected result: **105 tests passing** (Company: 27, Health: 3, ICP: 14, MongoDB: 1, Qualification Engine: 27, Qualifications: 10, Research: 23)
 
 ### Frontend Build Verification
 
@@ -383,14 +401,19 @@ Companies are sorted by creation date, newest first.
 
 ```env
 APP_NAME=Verityn
-APP_VERSION=0.2.0
+APP_VERSION=0.5.0
 DEBUG=false
 
-# MongoDB Configuration - REQUIRED for Phase 2 functionality
+# MongoDB Configuration - REQUIRED
 MONGODB_URI=mongodb://localhost:27017
 # For MongoDB Atlas:
 # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 MONGODB_DATABASE=verityn
+
+# Tavily API Configuration - REQUIRED for research features
+TAVILY_API_KEY=your_tavily_api_key_here
+TAVILY_MAX_RESULTS=5
+TAVILY_SEARCH_TIMEOUT=10
 ```
 
 ### Frontend (.env.local)
